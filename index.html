@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+	<title>Fibonacci clock</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.0/addons/p5.dom.min.js"></script>
+</head>
+ 
+<body id="index" class="home">
+
+<script>
+  var aFibo = [1, 1, 2, 3, 5];
+  var plotH = 5;
+  var plotW = 8;
+  var currentHour = 0;
+  var currentMinute = 0;
+  var fiboHour = [0,0,0,0,0];
+  var fiboMinute  = [0,0,0,0,0];
+
+  function setup() {
+    createCanvas(windowWidth*.965, windowHeight*.95);
+  }
+
+  function draw() {
+    var thisHour = hour() > 12 ? hour()-12  : hour();
+    if (thisHour != currentHour){
+      currentHour = thisHour;
+      fiboHour = getFiboSeq(currentHour);
+      console.log('currentHour', fiboHour);
+    }
+    var thisMinute = Math.floor(minute()/5);
+    if (thisMinute != currentMinute) {
+      currentMinute = thisMinute;
+      fiboMinute = getFiboSeq(currentMinute);
+      console.log('currentMinute', fiboMinute);
+    }
+
+    fibonacciScreen(fiboHour, fiboMinute);
+    
+  }
+
+
+  function lowFiboSec(num) {
+    /** Non-Random fibonacci calculus **/
+    var fiboSec = [0, 1, 2, 3, 4];
+    var numToFibo = [0, 0, 0, 0, 0];
+    var fiboSum = 0;
+    var indexOut = 0;
+    while (fiboSec.length > 1){
+      indexOut = fiboSec.pop();
+      if ((aFibo[indexOut]+fiboSum) <= num) {
+        numToFibo[indexOut] = 1;
+        fiboSum += aFibo[indexOut];
+      }
+    }
+    return numToFibo;
+  }
+
+  function getFiboSeq(num) {
+    /** Recieves a number from 0 - 12 **/
+    var fiboSec  = [0, 1, 2, 3, 4].slice(); // Map the fibonacci array position
+    var numToFibo = [0, 0, 0, 0, 0];
+    var fiboSum = 0;
+    var indexOut = null;
+    if (num>=8) {
+      // Ensure this value is iserted without altering the randomness
+      indexOut = fiboSec.pop()
+      numToFibo[indexOut] = 1;
+      fiboSum = aFibo[indexOut];
+    }
+    
+    while (fiboSum < num) {
+      fiboIndex = Math.floor(Math.random() * fiboSec.length);
+      indexOut = fiboSec.splice(fiboIndex, 1)[0];
+
+      if ((aFibo[indexOut]+fiboSum) <= num) {
+        numToFibo[indexOut] = 1;
+        fiboSum += aFibo[indexOut];
+      }
+
+      if (fiboSec.length < 1 && fiboSum != num) {
+        console.log('error');
+        return lowFiboSec(num);
+        break;
+      }
+
+    }
+
+    return numToFibo;
+  }
+
+  function colorSelector (colA, colB) {
+    if (colA && colB)    // Both
+      return '#44B3C2';  // Color: Light Blue
+    else if (colA)       // Hours
+      return '#5D4C46';  // Color: Red orange (Brown)
+    else if (colB)       // Minutes
+      return '#E45641';  // Color: Color: Orange
+    else                 // None
+      return '#F2EDD8';  // Color: Parchment
+  }
+
+  function fibonacciScreen(hours, minutes) {
+    stroke(255);
+    // 1
+    fill(colorSelector(hours[0], minutes[0]));
+    rect(width*2/plotW, height*1/plotH, width/plotW, height/plotH);
+    // 2
+    fill(colorSelector(hours[1], minutes[1]));
+    rect(width*2/plotW, height*0/plotH, width/plotW, height/plotH);
+    // 3
+    fill(colorSelector(hours[2], minutes[2]));
+    rect(0, 0, width*2/plotW, height*2/plotH);
+    // 4
+    fill(colorSelector(hours[3], minutes[3]));
+    rect(0, height*2/plotH, width*3/plotW, height*3/plotH);
+    // 5
+    fill(colorSelector(hours[4], minutes[4]));
+    rect(width*3/plotW, height*0/plotH, width*5/plotW, height*5/plotH);
+
+  }
+
+  function windowResized() {
+    resizeCanvas(windowWidth*.965, windowHeight*.95);
+  }
+
+</script>
+</body>
+</html>
